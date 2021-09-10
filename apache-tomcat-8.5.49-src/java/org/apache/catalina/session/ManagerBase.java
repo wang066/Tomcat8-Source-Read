@@ -17,38 +17,22 @@
 package org.apache.catalina.session;
 
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Deque;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import org.apache.catalina.Container;
-import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Globals;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Manager;
-import org.apache.catalina.Session;
-import org.apache.catalina.SessionIdGenerator;
+import org.apache.catalina.*;
 import org.apache.catalina.util.LifecycleMBeanBase;
 import org.apache.catalina.util.SessionIdGeneratorBase;
 import org.apache.catalina.util.StandardSessionIdGenerator;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.res.StringManager;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 /**
@@ -632,7 +616,7 @@ public abstract class ManagerBase extends LifecycleMBeanBase implements Manager 
 
     @Override
     public Session createSession(String sessionId) {
-
+        //1. session 数超过限制就抛异常
         if ((maxActiveSessions >= 0) &&
                 (getActiveSessions() >= maxActiveSessions)) {
             rejectedSessions++;
@@ -640,10 +624,10 @@ public abstract class ManagerBase extends LifecycleMBeanBase implements Manager 
                     sm.getString("managerBase.createSession.ise"),
                     maxActiveSessions);
         }
-
+        //2. 创建空Session
         // Recycle or create a Session instance
         Session session = createEmptySession();
-
+        //3. 设置Session属性，比较关键的是session的maxInactiveInterval，这个值是可以在web.xml中配置的
         // Initialize the properties of the new session and return it
         session.setNew(true);
         session.setValid(true);
@@ -653,9 +637,12 @@ public abstract class ManagerBase extends LifecycleMBeanBase implements Manager 
         if (id == null) {
             id = generateSessionId();
         }
+        // 3.2 Manager 中用一个 Map 来保存所有活跃的session, key 是 sessionId.
+        //     protected Map<String, Session> sessions = new ConcurrentHashMap<>();
+        //     setId 这个方法里会把当前session添加到 sessions里
         session.setId(id);
         sessionCounter++;
-
+        //4. 记下创建时间，用于统计session的创建频率
         SessionTiming timing = new SessionTiming(session.getCreationTime(), 0);
         synchronized (sessionCreationTiming) {
             sessionCreationTiming.add(timing);

@@ -53,6 +53,7 @@ public interface Pipeline {
      * @return the Valve instance that has been distinguished as the basic
      * Valve for this Pipeline (if any).
      */
+    // 基础的处理阀
     public Valve getBasic();
 
 
@@ -94,6 +95,7 @@ public interface Pipeline {
      * @exception IllegalStateException if the specified Valve is already
      *  associated with a different Container
      */
+    // 对节点（阀门）增删查
     public void addValve(Valve valve);
 
 
@@ -124,6 +126,7 @@ public interface Pipeline {
      * @return the Valve instance that has been distinguished as the basic
      * Valve for this Pipeline (if any).
      */
+    // 获取第一个节点，遍历的起点，所以需要有这方法
     public Valve getFirst();
 
 
@@ -131,6 +134,7 @@ public interface Pipeline {
      * Returns true if all the valves in this pipeline support async, false otherwise
      * @return true if all the valves in this pipeline support async, false otherwise
      */
+    // 是否所有节点（阀门）都支持处理Servlet3异步处理
     public boolean isAsyncSupported();
 
 
@@ -156,5 +160,6 @@ public interface Pipeline {
      *               Valve in this Pipeline that does not support async will be
      *               added
      */
+    // 找到所有不支持Servlet3异步处理的阀门
     public void findNonAsyncValves(Set<String> result);
 }

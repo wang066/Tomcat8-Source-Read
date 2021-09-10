@@ -16,18 +16,17 @@
  */
 package org.apache.catalina.core;
 
-import java.io.IOException;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.res.StringManager;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Valve that implements the default basic behavior for the
@@ -58,6 +57,7 @@ final class StandardContextValve extends ValveBase {
      * @exception IOException if an input/output error occurred
      * @exception ServletException if a servlet error occurred
      */
+    // 通过StandardContextValve的分析可以看到，其主要作用就是开启下一个层次容器的pipeline中valve链顺序执行
     @Override
     public final void invoke(Request request, Response response)
         throws IOException, ServletException {
